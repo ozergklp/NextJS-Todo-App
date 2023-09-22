@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next"
 import { PrismaClient } from '@prisma/client'
 import { authOptions } from './api/auth/[...nextauth]/route'
 import { Session } from 'next-auth'
+import Welcome from './components/Welcome'
+
 const prisma = new PrismaClient()
 
 type Todo = {
@@ -25,7 +27,7 @@ export default async function Home(){
 
   return (
     <main className="m-10 flex flex-col items-center">
-      {session && <Form  todos={todos} />}
+      {session ? <Form  todos={todos} /> : <Welcome />}
     </main>
   )
   

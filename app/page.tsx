@@ -1,18 +1,51 @@
+import Form from './components/Form'
+import { getServerSession } from "next-auth/next"
 import { PrismaClient } from '@prisma/client'
-
-
-import Form from "./components/Form"
+import { authOptions } from './api/auth/[...nextauth]/route'
+import { Session } from 'next-auth'
 const prisma = new PrismaClient()
 
+type Todo = {
+  id: number;
+  content: string;
+  userId:  string;
+}
 
-export default async function Home() {
+type Todos = {
+  todos: Todo[]
+}
 
-  const todos = await prisma.item.findMany();
+
+
+export default async function Home(){
+  
+  const session: Session | null = await getServerSession(authOptions);
+  
+  const todos = await getUsers(session )
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-slate-200 p-24">
-      <h1 className='text-3xl font-bold  m-5'>Todo</h1>
-      <Form  todos={todos}/>
+    <main className="m-10 flex flex-col items-center">
+      {session && <Form  todos={todos} />}
     </main>
   )
+  
+}
+
+
+async function getUsers(session: Session | null): Promise<Todo[]>{
+  if(session){
+    const prismaUser = await prisma.user.findUnique({
+      where: {email: session?.user?.email || undefined}
+    })
+  
+    
+    const todos = await prisma.todo.findMany({
+      where: {userId: prismaUser?.id}
+    });
+  
+    return todos
+  
+  }
+  let todos: Todo[] = [];
+  return  todos
 }

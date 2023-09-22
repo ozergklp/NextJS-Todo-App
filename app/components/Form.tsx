@@ -2,7 +2,8 @@
 
 type Todo = {
     id: number;
-    title: string;
+    content: string;
+    userId:  string;
 }
 
 type Todos = {
@@ -32,10 +33,13 @@ export default function Form({todos} : Todos) {
         <form ref={ref} autoComplete='off' action={async formData => {
             ref.current?.reset();
 
+            
             addOptimisticTodo({
                 id: Math.random(),
-                title: formData.get("todo") as string
+                content: formData.get("todo") as string,
+                userId: JSON.stringify(Math.random())
             })
+    
             await addTodo(formData)
         
         }} onSubmit={(e) => {
@@ -51,10 +55,13 @@ export default function Form({todos} : Todos) {
         </form>
         <ul className=' list-disc'>
             {
-                optimisticTodos.map(item => (
-                <li key={item.id} 
-                    className='m-2 ' > {item.title} </li>
-                ))
+                optimisticTodos && (
+                    optimisticTodos.map(item => (
+                        <li key={item.id} 
+                            className='m-2 ' > {item.content} </li>
+                        ))
+                )
+
             }
         </ul> 
     </>
